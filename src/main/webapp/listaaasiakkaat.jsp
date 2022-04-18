@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<link rel="stylesheet" type="text/css" href="css/main.css">
+
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
@@ -54,15 +54,17 @@ color: black;
 <thead>
 <tr>
 			<th class="oikealle">Hakusana:</th>
-			<th colspan="2"><input type="text" id="hakusana"></th>
+			<th colspan="3"><input type="text" id="hakusana"></th>
 			<th><input type="button" value="hae" id="hakunappi" class="hakunappi"></th>
 		</tr>			
 	
 	<tr>
+		<th>Asiakasnumero</th>
 	<th>Etunimi</th>
 	<th>Sukunimi</th>
-	<th>Sähköposti</th>
+	
 	<th>Puhelin</th>
+	<th>Sähköposti</th>
 	</tr>
 	</thead>
 	<tbody></tbody>
@@ -93,12 +95,15 @@ function haeAsiakkaat(){
         	htmlStr+="<tr>";
         	htmlStr+="<td>"+field.enimi+"</td>";
         	htmlStr+="<td>"+field.snimi+"</td>";
-        	htmlStr+="<td>"+field.sposti+"</td>";
-        	htmlStr+="<td>"+field.puhelin+"</td>";  
+         	htmlStr+="<td>"+field.sposti+"</td>";
+        	htmlStr+="<td>"+field.puhelin+"</td>";
+        
         	htmlStr+="</tr>";
         	$("#listaus tbody").append(htmlStr);
         });	
     }});
+	
+	
 }
 </script>
 

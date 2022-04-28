@@ -47,13 +47,17 @@ color: black;
   color: black;
   }
   .poista{
-	color: white;
+	color: red;
 	text-decoration: underline;
 	cursor: pointer;	
 }
 .uusiAsiakas, #takaisin{
 	color: white;	
 	cursor: pointer;	
+}
+
+#rivi_ {
+background-color: red;
 }
   
 </style>
@@ -79,7 +83,7 @@ color: black;
 	
 	<th>Puhelin</th>
 	<th>S‰hkˆposti</th>
-	<th>Poista asiakas</th>
+	<th>Muuta / Poista asiakas</th>
 	
 	</tr>
 	</thead>
@@ -108,41 +112,43 @@ $(document).ready(function(){
 	$("#hakusana").focus();//vied‰‰n kursori hakusana-kentt‰‰n sivun latauksen yhteydess‰
 });	
 
-function haeAsiakkaat(){
+
+
+function haeAsiakkaat(){	
 	$("#listaus tbody").empty();
-	$.ajax({url:"asiakkaat/"+$("#hakusana").val(), type:"GET", dataType:"json", success:function(result){//Funktio palauttaa tiedot json-objektina		
+	$.getJSON({url:"asiakkaat/"+$("#hakusana").val(), type:"GET", dataType:"json", success:function(result){	
 		$.each(result.asiakkaat, function(i, field){  
         	var htmlStr;
-        	htmlStr+="<tr>";
+        	htmlStr+="<tr id='rivi_"+field.asiakas_id+"'>";
         	htmlStr+="<td>"+field.etunimi+"</td>";
         	htmlStr+="<td>"+field.sukunimi+"</td>";
-         	htmlStr+="<td>"+field.sposti+"</td>";
+        	htmlStr+="<td>"+field.sposti+"</td>"; 
         	htmlStr+="<td>"+field.puhelin+"</td>";
-        	htmlStr+="<td><span class='poista' onclick=poista('"+field.etunimi+"')>Poista</span></td>";
+         
+        	htmlStr+="<td><a href= 'muutaasiakas.jsp?asiakas_id="+field.asiakas_id+"'>Muuta</a>&nbsp;";
+        	htmlStr+="<span class='poista' onclick=poista("+field.asiakas_id+",'"+field.etunimi+"','"+field.sukunimi+"')>Poista</span></td>"; 
         	htmlStr+="</tr>";
-        
-        	
         	$("#listaus tbody").append(htmlStr);
-        });	
-    }});
-	
-	
+        });
+    }});	
 }
 
-function poista (etunimi){
-if (confirm ("Poista asiakas " + etunimi + "?")){
+function poista (asiakas_id, etunimi, sukunimi){
+if (confirm ("Poista asiakas " + etunimi + " "+ sukunimi +"?")){
 	
 	$.ajax({url:"asiakkaat/"+asiakas_id, type:"DELETE", dataType:"json", success:function(result) { //result on joko {"response:1"} tai {"response:0"}
         if(result.response==0){
         	$("#ilmo").html("Asiakkaan poisto ep‰onnistui.");
         }else if(result.response==1){
-        	$("#rivi_"+rekno).css("background-color", "red"); //V‰rj‰t‰‰n poistetun asiakkaan rivi
-        	alert("Asiakkaan" + etunimi+ sukunimi +" poisto onnistui.");
+        	$("#rivi_"+asiakas_id); //V‰rj‰t‰‰n poistetun asiakkaan rivi
+        	alert("Asiakkaan" + etunimi+ " "+ sukunimi +" poisto onnistui.");
 			haeAsiakkaat();        	
 		}
     }});
 }
 }
+
+
 </script>
 
 </body>

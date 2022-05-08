@@ -1,3 +1,4 @@
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
@@ -5,8 +6,7 @@
 <head>
 <meta charset="ISO-8859-1">
 <script src="scripts/main.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
+
 
 <title>Muuta asiakas</title>
 <style >
@@ -27,13 +27,11 @@ table td, table th {
 </style>
 </head>
 <body>
-<form id="tiedot">
+<form id="tiedot" action="muutaasiakas" method="post">
 	<table>
 		<thead>	
 			<tr>
-		
-					<th colspan="5" class="oikealle"  style= "background-color:lightgrey;">
-				<span ><a href= "listaaasiakkaat.jsp">Takaisin listaukseen </a></span></th>
+				<th colspan="5" class="oikealle"><a href="listaaasiakkaat.jsp">Takaisin listaukseen</a></th>
 			</tr>		
 			<tr>
 				<th>Etunimi</th>
@@ -45,90 +43,46 @@ table td, table th {
 		</thead>
 		<tbody>
 			<tr>
-				<td><input type="text" name="etunimi" id="etunimi"></td>
-				<td><input type="text" name="sukunimi" id="sukunimi"></td>
-				<td><input type="text" name="puhelin" id="puhelin"></td>
-				<td><input type="text" name="sposti" id="sposti"></td> 
-				<td><input type="submit" id="tallenna" value="Hyväksy"></td>
+				<td><input type="text" name="etunimi" id="etunimi" value="${asiakas.etunimi}"></td>
+				<td><input type="text" name="sukunimi" id="sukunimi" value="${asiakas.sukunimi}"></td>
+				<td><input type="text" name="puhelin" id="puhelin" value="${asiakas.puhelin}"></td>
+				<td><input type="text" name="sposti" id="sposti" value="${asiakas.sposti}"></td> 
+				<td><input type="button" id="tallenna" value="Hyväksy" onclick="tarkasta()"></td>
 			</tr>
 		</tbody>
 	</table>
-	<input type="hidden" name="vanhaid" id="vanhaid">	
+	<input type="hidden" name="asiakas_id" id="asiakas_id" value="${asiakas.asiakas_id}">	
 </form>
 <span id="ilmo"></span>
 </body>
 <script>
-$(document).ready(function(){
-	$("#takaisin").click(function(){
-		document.location="listaaasiakkaat.jsp";
-	});
-	//Haetaan muutettavan auton tiedot. Kutsutaan backin GET-metodia ja välitetään kutsun mukana muutettavan tiedon id
-	//GET /autot/haeyksi/rekno
-	var asiakas_id = requestURLParam("asiakas_id"); //Funktio löytyy scripts/main.js 	
-	$.ajax({url:"asiakkaat/haeyksi/"+asiakas_id, type:"GET", dataType:"json", success:function(result){	
-		$("#vanhaid").val(result.asiakas_id);		
-		$("#etunimi").val(result.etunimi);	
-		$("#sukunimi").val(result.sukunimi);
-		$("#puhelin").val(result.puhelin);
-		$("#sposti").val(result.sposti);			
-    }});
-	
-	$("#tiedot").validate({						
-		rules: {
-			etunimi:  {
-				required: true,
-				minlength: 2				
-			},	
-			sukunimi:  {
-				required: true,
-				minlength: 2				
-			},
-			puhelin:  {
-				required: true,
-				minlength: 5
-			},	
-			sposti:  {
-				required: true,
-				minlength: 4
-			}	
-		},
-		messages: {
-			etunimi: {     
-				required: "Etunimeä ei annettu",
-				minlength: "Liian lyhyt"			
-			},
-			sukunimi: {
-				required: "Sukunimeä ei annettu",
-				minlength: "Liian lyhyt"
-			},
-			puhelin: {
-				required: "Puhelinnumeroa ei annettu",
-				minlength: "Liian lyhyt"
-			},
-			sposti: {
-				required: "Sähköpostia ei annettu",
-			
-				minlength: "Liian lyhyt"
-			
-			}
-		},
-		submitHandler: function(form) {	
-			paivitaTiedot();
-		}		
-	}); 	
-});
-//funktio tietojen päivittämistä varten. Kutsutaan backin PUT-metodia ja välitetään kutsun mukana uudet tiedot json-stringinä.
-//PUT /autot/
-function paivitaTiedot(){	
-	var formJsonStr = formDataJsonStr($("#tiedot").serializeArray()); //muutetaan lomakkeen tiedot json-stringiksi
-	$.ajax({url:"asiakkaat", data:formJsonStr, type:"PUT", dataType:"json", success:function(result) { //result on joko {"response:1"} tai {"response:0"}       
-		if(result.response==0){
-      	$("#ilmo").html("Asiakkaan päivittäminen epäonnistui.");
-      }else if(result.response==1){			
-      	$("#ilmo").html("Asiakkaan päivittäminen onnistui.");
-      	$("#etunimi", "#sukunimi", "#puhelin", "#sposti").val("");
-	  }
-  }});	
+function tarkasta(){
+
+	if(document.getElementById("etunimi").value.length<2){
+		document.getElementById("ilmo").innerHTML="Nimi on liian lyhyt";
+		return;
+	}else if(document.getElementById("sukunimi").value.length<1){
+		document.getElementById("ilmo").innerHTML="Sukunimi on liian lyhyt";
+		return;
+	}else if(document.getElementById("puhelin").value.length<5){
+		document.getElementById("ilmo").innerHTML="Numero on liian lyhyt";
+		return;
+	}else if(document.getElementById("sposti").value.length<4 ){
+		document.getElementById("ilmo").innerHTML="Sähköposti on liian lyhyt";
+		return;
+	}
+	document.getElementById("etunimi").value=siivoa(document.getElementById("etunimi").value);
+	document.getElementById("sukunimi").value=siivoa(document.getElementById("sukunimi").value);
+	document.getElementById("puhelin").value=siivoa(document.getElementById("puhelin").value);
+	document.getElementById("sposti").value=siivoa(document.getElementById("sposti").value);
+	document.forms["tiedot"].submit();
+}
+
+function siivoa(teksti){
+	teksti=teksti.replace("<","");
+	teksti=teksti.replace(";","");
+	teksti=teksti.replace("'","''");
+	return teksti;
 }
 </script>
 </html>
